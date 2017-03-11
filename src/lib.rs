@@ -80,6 +80,12 @@ macro_rules! state {
                 Self::default()
             }
 
+            fn subscribe(&mut self) -> ::std::sync::mpsc::Receiver<Self> {
+                let (tx, rx) = ::std::sync::mpsc::channel();
+                self.subs.push(tx);
+                return rx;
+            }
+
             fn reduce<T: ::std::any::Any>(&self, action: &T) -> Self {
                 let action = action as &::std::any::Any;
                 let mut new_self = self.clone();
@@ -88,7 +94,12 @@ macro_rules! state {
                         $reducer(&mut new_self.$field, action);
                     }
                 )*
-                new_self.subs.retain(|sub| sub.send(self.clone()).is_ok());
+                {
+                    let mut subs = new_self.subs;
+                    new_self.subs = Vec::new();
+                    subs.retain(|sub| sub.send(new_self.clone()).is_ok());
+                    new_self.subs = subs;
+                }
                 return new_self;
             }
         }
