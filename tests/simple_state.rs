@@ -4,8 +4,8 @@ use std::default::Default;
 state! {
     State,
     [
-        health: Health + HealthActions -> health_reducer,
-        other_health: Health + HealthActions -> health_reducer
+        health: Health       > HealthActions > health_reducer,
+        other_health: Health > HealthActions > health_reducer
     ]
 }
 

@@ -19,7 +19,7 @@
 //! state! {
 //!     State,
 //!     [
-//!         health: Health + HealthActions -> health_reducer
+//!         health: Health > HealthActions > health_reducer
 //!     ]
 //! }
 //!
@@ -66,9 +66,10 @@
 
 #[macro_export]
 macro_rules! state {
-    ( $name:ident , [$($field:ident : $struct:ident + $action:ident -> $reducer:ident),*]) => {
+    ( $name:ident , [$($field:ident : $struct:ty > $action:ident > $reducer:ident),*]) => {
         #[derive(Clone, Default)]
         struct $name {
+            subs: Vec<::std::sync::mpsc::Sender<$name>>,
             $(
                 $field : $struct,
             )*
@@ -87,6 +88,7 @@ macro_rules! state {
                         $reducer(&mut new_self.$field, action);
                     }
                 )*
+                new_self.subs.retain(|sub| sub.send(self.clone()).is_ok());
                 return new_self;
             }
         }
