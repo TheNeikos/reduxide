@@ -1,6 +1,9 @@
 [package]
+authors = ["Marcel Müller <neikos@neikos.email>"]
 name = "reduxide"
 version = "0.1.0"
-authors = ["Marcel Müller <neikos@neikos.email>"]
 
 [dependencies]
+
+[dev-dependencies]
+cursive = "0.4.1"
